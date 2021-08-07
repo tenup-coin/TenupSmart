@@ -453,9 +453,9 @@ contract ERC20 is Context, IERC20 {
     uint public liquidityFee = 40; //0.4% divisor 100
     uint public teamFee = 20; //0.2% divisor 100
     bool public sellLimiter; //by default false
-    uint public sellLimit = 50000 * 10 ** 9; //sell limit if sellLimiter is true
+    uint public sellLimit = 50000 * 10 ** 18; //sell limit if sellLimiter is true
     
-    uint256 public _maxTxAmount = 10000000 * 10**9;
+    uint256 public _maxTxAmount = 10000000 * 10**18;
     
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     /**
