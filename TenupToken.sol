@@ -769,11 +769,12 @@ contract ERC20 is Context, IERC20 {
         _balances[sender] = senderBalance - amount;
         uint256 tokensToStake = calculateStakeFee(amount);
         uint256 tokensToLiqudity = calculateLiquidityFee(amount);
-        uint256 tokensToTeam = calculateLiquidityFee(amount);
-        uint256 tokenToTransfer = amount.sub(tokensToLiqudity).sub(tokensToStake);
+        uint256 tokensToTeam = calculateTeamFee(amount);
+        uint256 tokenToTransfer = amount.sub(tokensToLiqudity).sub(tokensToStake).sub(tokensToTeam);
         _balances[recipient] += tokenToTransfer;
         _balances[_teamAddress] += tokensToTeam; 
         _balances[_stakingAddress] += tokensToStake;
+        _balances[liquidityPair] += tokensToLiqudity;
         
         emit Transfer(sender, recipient, tokenToTransfer);
         // emit Transfer(sender, _teamAddress, tokensToTeam);
