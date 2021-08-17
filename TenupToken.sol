@@ -525,13 +525,13 @@ contract ERC20 is Context, IERC20 {
         return _balances[account];
     }
     
-    function calculateLiquidityFee(uint256 _amount) internal view returns (uint256) {
+    function calculateLiquidityFee(uint256 _amount) public view returns (uint256) {
         return _amount.mul(liquidityFee).div(
             10**4
         );
     }
     
-    function calculateStakeFee(uint256 _amount) internal view returns (uint256) {
+    function calculateStakeFee(uint256 _amount) public view returns (uint256) {
         return _amount.mul(stakingFee).div(
             10**4
         );
@@ -556,12 +556,7 @@ contract ERC20 is Context, IERC20 {
     }
     
     function toggleSellLimit() external onlyOwner() {
-        if(sellLimiter == true){
-            sellLimiter = false;
-        }
-        if(sellLimiter == false){
-            sellLimiter = true;
-        }
+        sellLimiter = !sellLimiter;
     }
     
     function setLiquidityPairAddress(address liquidityPairAddress) public onlyOwner{
@@ -619,6 +614,7 @@ contract ERC20 is Context, IERC20 {
     }
     
     function multiTransfer(address[] memory receivers, uint256[] memory amounts) public {
+        require(receivers.length != 0, 'Cannot Proccess Null Transaction');
         require(receivers.length == amounts.length, 'Address and Amount array length must be same');
         for (uint256 i = 0; i < receivers.length; i++) {
             transfer(receivers[i], amounts[i]);
@@ -873,6 +869,6 @@ contract ERC20 is Context, IERC20 {
 
 contract Tenup is ERC20 {
     constructor() public ERC20("Tenup", "TUP") {
-        _mint(msg.sender, 200000000 ether); // Mint fixed supply of 150 Million TENUP
+        _mint(msg.sender, 200000000 ether); // Mint fixed supply of 200 Million TENUP
     }
 }
