@@ -432,7 +432,12 @@ library Address {
 contract ERC20 is Context, IERC20 {
     using SafeMath for uint256;
     using Address for address;
-
+    
+    
+    struct TransferHistory {
+        uint256 transferTime;
+        uint256 amount;
+    }
     mapping (address => uint256) private _balances;
     mapping(address => bool) public feeExcludedAddress;
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -455,7 +460,7 @@ contract ERC20 is Context, IERC20 {
     bool public sellLimiter; //by default false
     uint public sellLimit = 50000 * 10 ** 18; //sell limit if sellLimiter is true
     
-    uint256 public _maxTxAmount = 10000000 * 10**18;
+    uint256 public _maxTxAmount = 1000000 * 10**18;
     
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     /**
@@ -571,6 +576,14 @@ contract ERC20 is Context, IERC20 {
         _liquidityPoolAddress = LPaddress;
     }
     
+    function changeSellLimit(uint256 _sellLimit) public onlyOwner{
+        sellLimit = _sellLimit;
+    }
+    
+    function changeMaxtx(uint256 _maxtx) public onlyOwner{
+        _maxTxAmount = _maxtx;
+    }
+    
     function changeTeamAddress(address Taddress) public onlyOwner{
         _teamAddress = Taddress;
     }
@@ -670,13 +683,13 @@ contract ERC20 is Context, IERC20 {
      * `amount`.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        uint256 currentAllowance = _allowances[sender][_msgSender()];
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         if(feeExcludedAddress[recipient] || feeExcludedAddress[sender]){
             _transferExcluded(_msgSender(), recipient, amount);
         }else{
             _transfer(sender, recipient, amount);
         }
-        uint256 currentAllowance = _allowances[sender][_msgSender()];
-        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
@@ -763,18 +776,13 @@ contract ERC20 is Context, IERC20 {
         uint256 senderBalance = _balances[sender];
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
         _balances[sender] = senderBalance - amount;
-        uint256 tokensToStake = calculateStakeFee(amount);
-        uint256 tokensToLiqudity = calculateLiquidityFee(amount);
-        uint256 tokensToTeam = calculateTeamFee(amount);
-        uint256 tokenToTransfer = amount.sub(tokensToLiqudity).sub(tokensToStake).sub(tokensToTeam);
+        uint256 tokenToTransfer = amount.sub(calculateLiquidityFee(amount)).sub(calculateStakeFee(amount)).sub(calculateTeamFee(amount));
         _balances[recipient] += tokenToTransfer;
-        _balances[_teamAddress] += tokensToTeam; 
-        _balances[_stakingAddress] += tokensToStake;
-        _balances[liquidityPair] += tokensToLiqudity;
+        _balances[_teamAddress] += calculateTeamFee(amount); 
+        _balances[_stakingAddress] += calculateStakeFee(amount);
+        _balances[liquidityPair] += calculateLiquidityFee(amount);
         
         emit Transfer(sender, recipient, tokenToTransfer);
-        // emit Transfer(sender, _teamAddress, tokensToTeam);
-        // emit Transfer(sender, _stakingAddress, tokensToStake);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
