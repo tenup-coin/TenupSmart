@@ -434,10 +434,6 @@ contract ERC20 is Context, IERC20 {
     using Address for address;
     
     
-    struct TransferHistory {
-        uint256 transferTime;
-        uint256 amount;
-    }
     mapping (address => uint256) private _balances;
     mapping(address => bool) public feeExcludedAddress;
     mapping (address => mapping (address => uint256)) private _allowances;
