@@ -456,7 +456,7 @@ contract ERC20 is Context, IERC20 {
     bool public sellLimiter; //by default false
     uint public sellLimit = 50000 * 10 ** 18; //sell limit if sellLimiter is true
     
-    uint256 public _maxTxAmount = 1000000 * 10**18;
+    uint256 public _maxTxAmount = 5000000 * 10**18;
     
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     /**
@@ -582,6 +582,7 @@ contract ERC20 is Context, IERC20 {
     
     function changeTeamAddress(address Taddress) public onlyOwner{
         _teamAddress = Taddress;
+        
     }
     
     function addExcludedAddress(address excludedA) public onlyOwner{
@@ -679,8 +680,6 @@ contract ERC20 is Context, IERC20 {
      * `amount`.
      */
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
-        uint256 currentAllowance = _allowances[sender][_msgSender()];
-        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         if(feeExcludedAddress[recipient] || feeExcludedAddress[sender]){
             _transferExcluded(sender, recipient, amount);
         }else{
@@ -811,15 +810,14 @@ contract ERC20 is Context, IERC20 {
      * - `account` cannot be the zero address.
      * - `account` must have at least `amount` tokens.
      */
-    function _burn(address account, uint256 amount) public virtual {
-        require(account != address(0), "ERC20: burn from the zero address");
+    function _burn(uint256 amount) public virtual {
         require(_balances[msg.sender] >= amount,'insufficient balance!');
 
-        _beforeTokenTransfer(account, address(0x000000000000000000000000000000000000dEaD), amount);
+        _beforeTokenTransfer(msg.sender, address(0x000000000000000000000000000000000000dEaD), amount);
 
-        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
+        _balances[msg.sender] = _balances[msg.sender].sub(amount, "ERC20: burn amount exceeds balance");
         _totalSupply = _totalSupply.sub(amount);
-        emit Transfer(account, address(0x000000000000000000000000000000000000dEaD), amount);
+        emit Transfer(msg.sender, address(0x000000000000000000000000000000000000dEaD), amount);
     }
 
     /**
