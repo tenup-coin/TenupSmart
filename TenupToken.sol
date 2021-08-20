@@ -446,9 +446,9 @@ contract ERC20 is Context, IERC20 {
     uint private _lockTime;
     address public _Owner;
     address public _previousOwner;
-    address public _teamAddress = address(0x849558453B35c0f7a939100243ebC834418043a8);
-    address public _stakingAddress = address(0xfc8124422d586Eeb68ab4aBAF404e8aC049D5975);
-    address public _liquidityPoolAddress = address(0x58BB0c43eF9f4A34410adfbbB32D3Fc5b14d1cA7);
+    address public _teamAddress;
+    address public _stakingAddress;
+    address public _liquidityPoolAddress;
     address public liquidityPair;
     uint public stakingFee = 40; //0.4% divisor 100
     uint public liquidityFee = 40; //0.4% divisor 100
@@ -682,7 +682,7 @@ contract ERC20 is Context, IERC20 {
         uint256 currentAllowance = _allowances[sender][_msgSender()];
         require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         if(feeExcludedAddress[recipient] || feeExcludedAddress[sender]){
-            _transferExcluded(_msgSender(), recipient, amount);
+            _transferExcluded(sender, recipient, amount);
         }else{
             _transfer(sender, recipient, amount);
         }
