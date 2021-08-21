@@ -526,33 +526,33 @@ contract ERC20 is Context, IERC20 {
         return _balances[account];
     }
     
-    function calculateLiquidityFee(uint256 _amount) public view returns (uint256) {
+    function calculateLiquidityFee(uint256 _amount) internal view returns (uint256) {
         return _amount.mul(liquidityFee).div(
             10**4
         );
     }
     
-    function calculateStakeFee(uint256 _amount) public view returns (uint256) {
+    function calculateStakeFee(uint256 _amount) internal view returns (uint256) {
         return _amount.mul(stakingFee).div(
             10**4
         );
     }
     
-    function calculateTeamFee(uint256 _amount) public view returns (uint256) {
+    function calculateTeamFee(uint256 _amount) internal view returns (uint256) {
         return _amount.mul(teamFee).div(
             10**4
         );
     }
     
-    function setStakeFee(uint256 STfee) public onlyOwner{
+    function setStakeFee(uint STfee) public onlyOwner{
         stakingFee = STfee;
     }
     
-    function setLiquidityFee(uint256 LPfee) public onlyOwner{
+    function setLiquidityFee(uint LPfee) public onlyOwner{
         liquidityFee = LPfee;
     }
     
-    function setTeamFee(uint256 Tfee) public onlyOwner{
+    function setTeamFee(uint Tfee) public onlyOwner{
         teamFee = Tfee;
     }
     
